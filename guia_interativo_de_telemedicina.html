@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guia Interativo de Telemedicina - Medicina Etapa 1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        medical: {
+                            50: '#f0f9ff', 100: '#e0f2fe', 200: '#bae6fd', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1', 800: '#075985', 900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+    <!-- READING PROGRESS BAR -->
+    <div class="fixed top-0 left-0 w-full h-1.5 bg-slate-200 z-50">
+        <div id="progressBar" class="h-full bg-medical-600 transition-all duration-150 w-0"></div>
+    </div>
+
+    <!-- HERO HEADER -->
+    <header class="bg-gradient-to-r from-medical-900 via-medical-800 to-slate-900 text-white pt-8 pb-10 px-4 sm:px-6 lg:px-8 shadow-xl">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+                <div class="inline-flex items-center gap-2 bg-medical-500/20 text-medical-200 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-3 border border-medical-500/30">
+                    <i data-lucide="graduation-cap" class="w-4 h-4"></i> Projeto Educacional - Etapa 1 Calouros
+                </div>
+                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white">
+                    Guia Interativo de Telemedicina
+                </h1>
+                <p class="text-slate-300 text-sm sm:text-base mt-2 max-w-2xl">
+                    Portal didático para apoio na construção de aplicações em telessaúde: conceito, histórico, arquitetura, legislação e projeto prático.
+                </p>
+            </div>
+            <!-- SEARCH -->
+            <div class="w-full md:w-80 relative">
+                <input type="text" id="searchInput" onkeyup="handleSearch()" placeholder="Pesquisar conceitos, leis..." 
+                    class="w-full pl-10 pr-4 py-2.5 bg-slate-800/80 text-white placeholder-slate-400 rounded-xl border border-slate-700 focus:outline-none focus:ring-2 focus:ring-medical-500 text-sm shadow-inner">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 text-slate-400"></i>
+                <div id="searchResults" class="hidden absolute left-0 right-0 mt-2 bg-white text-slate-800 rounded-xl shadow-2xl border border-slate-200 max-h-60 overflow-y-auto z-50 text-sm"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN WRAPPER -->
+    <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 -mt-5 flex-1 pb-12 flex flex-col md:flex-row gap-6 relative z-20">
+        
+        <!-- SIDEBAR NAVIGATION -->
+        <nav class="w-full md:w-64 bg-white rounded-2xl shadow-lg border border-slate-200/80 p-3 shrink-0 h-fit sticky top-6">
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider px-3 py-2">Navegação do Guia</div>
+            <div class="space-y-1" id="tabButtons">
+                <button onclick="switchTab('conceito')" data-tab="conceito" class="tab-btn active w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-medical-700 bg-medical-50 font-semibold text-left">
+                    <i data-lucide="book-open" class="w-4 h-4 shrink-0"></i> Conceito &amp; Modalidades
+                </button>
+                <button onclick="switchTab('historico')" data-tab="historico" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 text-left">
+                    <i data-lucide="history" class="w-4 h-4 shrink-0"></i> Linha do Tempo
+                </button>
+                <button onclick="switchTab('arquitetura')" data-tab="arquitetura" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 text-left">
+                    <i data-lucide="cpu" class="w-4 h-4 shrink-0"></i> Arquitetura &amp; Simulação
+                </button>
+                <button onclick="switchTab('mercado')" data-tab="mercado" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 text-left">
+                    <i data-lucide="building-2" class="w-4 h-4 shrink-0"></i> Mercado &amp; Aplicativos
+                </button>
+                <button onclick="switchTab('desafios')" data-tab="desafios" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 text-left">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i> Desafios &amp; Limitações
+                </button>
+                <button onclick="switchTab('roteiro')" data-tab="roteiro" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 text-left">
+                    <i data-lucide="list-checks" class="w-4 h-4 shrink-0"></i> Roteiro do Projeto (Sprint)
+                </button>
+                <button onclick="switchTab('legislacao')" data-tab="legislacao" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 text-left">
+                    <i data-lucide="scale" class="w-4 h-4 shrink-0"></i> Legislação &amp; Normas
+                </button>
+                <button onclick="switchTab('quiz')" data-tab="quiz" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 text-left">
+                    <i data-lucide="award" class="w-4 h-4 shrink-0"></i> Quiz Didático
+                </button>
+            </div>
+        </nav>
+
+        <!-- MAIN TAB CONTENT AREA -->
+        <main class="flex-1 bg-white rounded-2xl shadow-lg border border-slate-200/80 p-6 sm:p-8 min-h-[500px]">
+
+            <!-- TAB 1 -->
+            <section id="conceito" class="tab-content active space-y-6">
+                <h2 class="text-2xl font-bold text-slate-900">O Conceito de Telemedicina e Saúde Digital</h2>
+                <p class="text-slate-600 text-sm leading-relaxed">
+                    A Telemedicina engloba o exercício da medicina mediado por Tecnologias Digitais, de Informação e de Comunicação (TDICs) para assistência, prevenção, educação e gestão (Lei nº 14.510/2022).
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="bg-white border p-4 rounded-xl shadow-sm">
+                        <h4 class="font-bold text-slate-800 text-sm">1. Teleconsulta</h4>
+                        <p class="text-xs text-slate-600 mt-1">Consulta médica remota entre médico e paciente.</p>
+                    </div>
+                    <div class="bg-white border p-4 rounded-xl shadow-sm">
+                        <h4 class="font-bold text-slate-800 text-sm">2. Teleinterconsulta</h4>
+                        <p class="text-xs text-slate-600 mt-1">Troca de opiniões entre médicos para auxílio diagnóstico.</p>
+                    </div>
+                    <div class="bg-white border p-4 rounded-xl shadow-sm">
+                        <h4 class="font-bold text-slate-800 text-sm">3. Telediagnóstico</h4>
+                        <p class="text-xs text-slate-600 mt-1">Emissão de laudo à distância de exames digitais.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2 -->
+            <section id="historico" class="tab-content space-y-6">
+                <h2 class="text-2xl font-bold text-slate-900">Linha do Tempo da Telemedicina</h2>
+                <div class="border-l-2 border-slate-200 ml-4 pl-6 space-y-6 text-xs sm:text-sm">
+                    <div>
+                        <strong class="text-medical-600">Anos 1960:</strong> Programa espacial norte-americano (NASA) com biotelemetria de astronautas.
+                    </div>
+                    <div>
+                        <strong class="text-medical-600">2006:</strong> Criação da Rede Universitária de Telemedicina (RUTE) no Brasil.
+                    </div>
+                    <div>
+                        <strong class="text-emerald-600">2020:</strong> Liberação emergencial da telemedicina devido à pandemia da COVID-19.
+                    </div>
+                    <div>
+                        <strong class="text-indigo-600">2022:</strong> Regulamentação definitiva com a Lei 14.510/2022 e Resolução CFM 2.314/2022.
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3 -->
+            <section id="arquitetura" class="tab-content space-y-6">
+                <h2 class="text-2xl font-bold text-slate-900">Arquitetura &amp; Simulador</h2>
+                <div class="p-4 bg-slate-50 border rounded-xl">
+                    <h3 class="font-bold text-sm text-slate-800 mb-2">Simulador da Jornada</h3>
+                    <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
+                        <button onclick="setSimStep(1)" class="sim-btn px-3 py-1 rounded bg-medical-600 text-white text-xs font-bold">1. 2FA</button>
+                        <button onclick="setSimStep(2)" class="sim-btn px-3 py-1 rounded bg-slate-200 text-slate-700 text-xs font-bold">2. TCLE</button>
+                        <button onclick="setSimStep(3)" class="sim-btn px-3 py-1 rounded bg-slate-200 text-slate-700 text-xs font-bold">3. PEP</button>
+                        <button onclick="setSimStep(4)" class="sim-btn px-3 py-1 rounded bg-slate-200 text-slate-700 text-xs font-bold">4. Vídeo</button>
+                    </div>
+                    <div id="simDesc" class="text-xs text-slate-600 bg-white p-3 rounded border">
+                        Passo 1: Autenticação de perfil médico e paciente com verificação de CRM.
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4 -->
+            <section id="mercado" class="tab-content space-y-6">
+                <h2 class="text-2xl font-bold text-slate-900">Principais Fornecedores</h2>
+                <p class="text-xs sm:text-sm text-slate-600">Conexa Saúde, iClinic, Amplimed, Doctoralia e plataformas Open Source como OpenEMR.</p>
+            </section>
+
+            <!-- TAB 5 -->
+            <section id="desafios" class="tab-content space-y-6">
+                <h2 class="text-2xl font-bold text-slate-900">Desafios e Limitações</h2>
+                <ul class="list-disc pl-5 text-xs sm:text-sm text-slate-600 space-y-2">
+                    <li>Impossibilidade do exame físico tátil tradicional.</li>
+                    <li>Exclusão digital e estabilidade de conexão de internet.</li>
+                    <li>Segurança e sigilo de dados sensíveis de saúde (LGPD).</li>
+                </ul>
+            </section>
+
+            <!-- TAB 6 -->
+            <section id="roteiro" class="tab-content space-y-6">
+                <h2 class="text-2xl font-bold text-slate-900">Roteiro de Sprint para os Alunos</h2>
+                <p class="text-xs sm:text-sm text-slate-600">1. Product Discovery &rarr; 2. Wireframing UI/UX &rarr; 3. TCLE &amp; LGPD &rarr; 4. Roleplay Clínico &rarr; 5. Avaliação SUS.</p>
+            </section>
+
+            <!-- TAB 7 -->
+            <section id="legislacao" class="tab-content space-y-6">
+                <h2 class="text-2xl font-bold text-slate-900">Legislação e Normas</h2>
+                <p class="text-xs sm:text-sm text-slate-600">Lei Federal nº 14.510/2022, Resolução CFM nº 2.314/2022, LGPD (Lei nº 13.709/2018) e ANS nº 553/2022.</p>
+            </section>
+
+            <!-- TAB 8 -->
+            <section id="quiz" class="tab-content space-y-6">
+                <h2 class="text-2xl font-bold text-slate-900">Quiz Didático</h2>
+                <div id="quizBox" class="text-xs sm:text-sm space-y-3">
+                    <p class="font-bold">Qual lei regulamentou definitivamente a telessaúde no Brasil em 2022?</p>
+                    <label class="block"><input type="radio" name="q1" value="0"> a) Lei 13.989/2020</label>
+                    <label class="block"><input type="radio" name="q1" value="1"> b) Lei 14.510/2022</label>
+                    <button onclick="checkQuiz()" class="mt-3 px-4 py-2 bg-medical-600 text-white font-bold text-xs rounded-xl">Ver Resposta</button>
+                    <p id="quizRes" class="font-bold text-xs mt-2"></p>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        window.onscroll = function() {
+            let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            document.getElementById("progressBar").style.width = ((winScroll / height) * 100) + "%";
+        };
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active', 'text-medical-700', 'bg-medical-50', 'font-semibold'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`[data-tab="${tabId}"]`).classList.add('active', 'text-medical-700', 'bg-medical-50', 'font-semibold');
+        }
+
+        function setSimStep(step) {
+            const steps = {
+                1: "Passo 1: Autenticação de perfil médico e paciente com verificação de CRM.",
+                2: "Passo 2: Aceite obrigatório do TCLE com registro de data e IP.",
+                3: "Passo 3: Registro de anamnese e hipótese diagnóstica (CID-10) no PEP.",
+                4: "Passo 4: Abertura da sala de videochamada WebRTC criptografada."
+            };
+            document.getElementById('simDesc').innerText = steps[step];
+        }
+
+        function checkQuiz() {
+            const sel = document.querySelector('input[name="q1"]:checked');
+            const res = document.getElementById('quizRes');
+            if(!sel) { res.innerText = "Selecione uma alternativa."; return; }
+            if(sel.value === "1") { res.className = "text-emerald-600 font-bold text-xs mt-2"; res.innerText = "Correto! Lei 14.510/2022."; }
+            else { res.className = "text-red-600 font-bold text-xs mt-2"; res.innerText = "Incorreto. A resposta certa é a Lei 14.510/2022."; }
+        }
+
+        const searchableItems = [{ term: "Teleconsulta", tab: "conceito" }, { term: "Resolução CFM 2.314/2022", tab: "legislacao" }, { term: "LGPD", tab: "legislacao" }];
+        function handleSearch() {
+            const val = document.getElementById('searchInput').value.toLowerCase();
+            const box = document.getElementById('searchResults');
+            if(val.length < 2) { box.classList.add('hidden'); return; }
+            const match = searchableItems.filter(i => i.term.toLowerCase().includes(val));
+            if(match.length > 0) {
+                box.innerHTML = match.map(m => `<div onclick="switchTab('${m.tab}'); document.getElementById('searchResults').classList.add('hidden');" class="p-2 hover:bg-slate-100 cursor-pointer text-xs font-semibold">${m.term}</div>`).join('');
+                box.classList.remove('hidden');
+            } else { box.classList.add('hidden'); }
+        }
+    </script>
+</body>
+</html>
